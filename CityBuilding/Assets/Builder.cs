@@ -36,7 +36,8 @@ public abstract class Builder : MonoBehaviour {
         //}
         //CheckForInput();
     }
-
+    public delegate void onSpawn(GameObject target);
+    public static event onSpawn OnSpawn;
     public void DisplaySelectedObject(List<GameObject> objects)
     {
         if (objectSelectedNum <= objects.Count)
@@ -62,7 +63,7 @@ public abstract class Builder : MonoBehaviour {
 
         if (newObject.GetComponent<Stats>())
         newObject.GetComponent<Stats>().isAlive = true;
-
+        OnSpawn(newObject);
         ResetBuilding();
     }
 
