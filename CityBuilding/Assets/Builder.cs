@@ -89,7 +89,12 @@ public abstract class Builder : MonoBehaviour {
             selectedObjects = ObjectManager.instance.obstaclePrefabs;
             Debug.Log("Defensive Building Mode On");
         }
-
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            isBuilding = true;
+            selectedObjects = ObjectManager.instance.buffPrefabs;
+            Debug.Log("Buff Building Mode On");
+        }
         if (isBuilding)
         {
             for (int i = 0; i < keyCodes.Length; i++)
