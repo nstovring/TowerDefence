@@ -11,7 +11,6 @@ public abstract class Shooter : MonoBehaviour
     public int launchForce;
 
     protected float timePassed;
-
     public Rigidbody projectilePrefab;
 
     public virtual void Initialize()
