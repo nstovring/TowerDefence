@@ -36,7 +36,8 @@ public abstract class Builder : MonoBehaviour {
         //}
         //CheckForInput();
     }
-
+    public delegate void onSpawn(GameObject target);
+    public static event onSpawn OnSpawn;
     public void DisplaySelectedObject(List<GameObject> objects)
     {
         if (objectSelectedNum <= objects.Count)
@@ -62,7 +63,7 @@ public abstract class Builder : MonoBehaviour {
 
         if (newObject.GetComponent<Stats>())
         newObject.GetComponent<Stats>().isAlive = true;
-
+        OnSpawn(newObject);
         ResetBuilding();
     }
 
@@ -88,7 +89,12 @@ public abstract class Builder : MonoBehaviour {
             selectedObjects = ObjectManager.instance.obstaclePrefabs;
             Debug.Log("Defensive Building Mode On");
         }
-
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            isBuilding = true;
+            selectedObjects = ObjectManager.instance.buffPrefabs;
+            Debug.Log("Buff Building Mode On");
+        }
         if (isBuilding)
         {
             for (int i = 0; i < keyCodes.Length; i++)
