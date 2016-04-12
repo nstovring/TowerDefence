@@ -32,14 +32,13 @@ public abstract class Aimer : MonoBehaviour {
                 if (hitCollider.transform.tag == opposition)
                 {
                     Stats curEnemy = hitCollider.transform.GetComponent<Stats>();
-                    //Check if enemy is alive
+                    //Check if enemy detected is alive should update enemy with removal of collider btw
                     if (!curEnemy.isAlive)
                     {
                         if (enemies.Contains(curEnemy))
                         {
                             enemies.Remove(curEnemy);
                         }
-                        //curTarget = null;
                         return;
                     }
                     if (!enemies.Contains(curEnemy))
@@ -59,15 +58,13 @@ public abstract class Aimer : MonoBehaviour {
             //Check if target is within range
             if (Vector3.Distance(curTarget.transform.position, transform.position) > range)
             {
-                enemies.RemoveAt(0);
-                curTarget = null;
+                RemoveEnemy(curTarget);
                 return false;
             }
             //Check if target is dead
             if (!curTarget.isAlive)
             {
-                enemies.RemoveAt(0);
-                curTarget = null;
+                RemoveEnemy(curTarget);
             }
         }
         if (!curTarget && enemies.Count != 0)
@@ -81,7 +78,6 @@ public abstract class Aimer : MonoBehaviour {
 
     public void RemoveEnemy(Stats deadEnemy)
     {
-        Debug.Log("Removing Enemy");
         if (curTarget == deadEnemy)
         {
             curTarget = null;

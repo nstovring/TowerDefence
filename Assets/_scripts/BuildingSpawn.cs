@@ -5,12 +5,14 @@ using System.Collections.Generic;
 public class BuildingSpawn : MonoBehaviour
 {
 
-    public static List<GameObject> buildingsSpawned; 
+    public List<GameObject> buildingsSpawned;
+    public static BuildingSpawn instance;
 	// Use this for initialization
 	void Start () {
         Builder.OnSpawn += CheckForDistance;
         buildingsSpawned = new List<GameObject>();
-    }
+	    instance = this;
+	}
 	
 	// Update is called once per frame
 	void Update () {
@@ -20,7 +22,10 @@ public class BuildingSpawn : MonoBehaviour
     public void CheckForDistance(GameObject target)
     {
         //Temp code placement here
-        buildingsSpawned.Add(target);
+        if (!buildingsSpawned.Contains(target))
+        {
+            buildingsSpawned.Add(target);
+        }
         //
 
         float dist = (target.transform.position - gameObject.transform.position).magnitude;
