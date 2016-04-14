@@ -35,6 +35,7 @@ public abstract class Builder : MonoBehaviour {
     }
     public delegate void onSpawn(GameObject target);
     public static event onSpawn OnSpawn;
+
     public void DisplaySelectedObject(List<GameObject> objects)
     {
         if (objectSelectedNum <= objects.Count)

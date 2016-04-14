@@ -6,9 +6,11 @@ public class Enemy : Stats
 {
     private GameObject[] turretsSpawned;
 	// Use this for initialization
-	void Start ()
+	void Awake ()
 	{
-	    turretsSpawned = GameObject.FindGameObjectsWithTag("Turret");
+        Initialize();
+        turretsSpawned = GameObject.FindGameObjectsWithTag("Turret");
+        //Destroy(transform.GetChild(0).gameObject,2);
 	}
 	
 	// Update is called once per frame
@@ -17,14 +19,15 @@ public class Enemy : Stats
 	    {
 	        GetComponent<Collider>().enabled = false;
             turretsSpawned = GameObject.FindGameObjectsWithTag("Turret");
+	        Debug.Log(BuildingSpawn.buildingsSpawned.Count);
             isAlive = false;
             foreach (GameObject turretGameObject in turretsSpawned)
             {
                 turretGameObject.GetComponent<Stats>().myAimer.RemoveEnemy(this);
-                //turretGameObject.SendMessage("RemoveEnemy", this);
             }
             Destroy(gameObject,2);
 	    }
+        ResizeHealthBar();
 	}
 
     void OnCollisionEnter(Collision other)

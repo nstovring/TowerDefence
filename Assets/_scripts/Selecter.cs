@@ -10,6 +10,7 @@ public class Selecter : MonoBehaviour {
     // Use this for initialization
     void Start () {
         isSelectableMask = LayerMask.GetMask("isSelectable");
+        //isSelectableMask = 1 << isSelectableMask;
         selectedObjectList = new List<Stats>();
     }
 

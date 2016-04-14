@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class BuildingSpawn : MonoBehaviour
 {
 
-    public List<GameObject> buildingsSpawned;
+    public static List<GameObject> buildingsSpawned;
     public static BuildingSpawn instance;
 	// Use this for initialization
 	void Start () {
