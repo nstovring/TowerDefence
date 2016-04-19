@@ -26,7 +26,7 @@ public class Spawner : MonoBehaviour
 	    }
 	}
 
-    private float spawnRadius = 5;
+    public float spawnRadius = 5;
 
     public void Spawn(GameObject prefab)
     {
