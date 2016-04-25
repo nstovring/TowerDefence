@@ -41,7 +41,7 @@ public abstract class Builder : MonoBehaviour {
         if (objectSelectedNum <= objects.Count)
         {
             currentPrefab = objects[objectSelectedNum - 1];
-            currentPrefab.transform.position = UnitMovement.mouseToWorldPosition;
+            currentPrefab.transform.position = CameraFollow.mouseToWorldPosition;
             currentPrefab.transform.rotation = UnitMovement.playerRotation;
         }
         if (Input.GetMouseButtonUp(0))

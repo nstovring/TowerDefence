@@ -6,8 +6,11 @@ public class Spawner : MonoBehaviour
     public GameObject prefab;
     private float timePassed;
     public float spawnRate;
+    public float roundRate = 10;
     public int spawnMax = 20;
-    private int currrentSpawnAmount;
+    public int maxRounds = 2;
+    private int currentSpawnAmount;
+    private int currentRound;
 	// Use this for initialization
 	void Start () {
 	
@@ -15,13 +18,23 @@ public class Spawner : MonoBehaviour
 	
 	// Update is called once per frame
 	void Update () {
-	    if (currrentSpawnAmount < spawnMax)
+	    if (currentSpawnAmount < spawnMax)
 	    {
 	        timePassed += Time.deltaTime;
 	        if (timePassed > spawnRate)
 	        {
 	            timePassed = 0;
 	            Spawn(prefab);
+	        }
+	    }
+	    else if(currentRound < maxRounds)
+	    {
+	        timePassed += Time.deltaTime;
+	        if (timePassed > roundRate)
+	        {
+	            timePassed = 0;
+	            currentSpawnAmount = 0;
+	            currentRound++;
 	        }
 	    }
 	}
@@ -36,10 +49,9 @@ public class Spawner : MonoBehaviour
         float rngZpos = Random.Range(transform.position.z - spawnRadius, transform.position.z + spawnRadius);
 
         Vector3 rnSpawnPosVector3 = new Vector3(rngXpos,transform.position.y,rngZpos);
-        currrentSpawnAmount++;
+        currentSpawnAmount++;
         GameObject clone = Instantiate(prefab, rnSpawnPosVector3, Quaternion.identity) as GameObject;
-        clone.GetComponent<Stats>().isAlive = true;
         clone.SetActive(true);
-        clone.transform.name = "Enemy " +currrentSpawnAmount;
+        clone.transform.name = "Enemy " + currentRound + ","+ currentSpawnAmount;
     }
 }

@@ -23,6 +23,7 @@ public abstract class Stats : MonoBehaviour {
 
     public virtual void Initialize()
     {
+        isAlive = true;
         healthBarHolder = GameObject.CreatePrimitive(PrimitiveType.Cube);
         healthBarHolder.transform.parent = gameObject.transform;
         healthBarHolder.transform.localScale = new Vector3(1,0.2f,0.2f);
@@ -31,9 +32,15 @@ public abstract class Stats : MonoBehaviour {
 
     public void ResizeHealthBar()
     {
-        int maxWidth = 100;
+        //int maxWidth = 100;
         healthBarHolder.transform.localScale = new Vector3(1 * (health/100f), 0.2f, 0.2f);
         //myHealthBarSprite.rect.size = (0.1f*maxWidth)*health;
+    }
+
+    public virtual void ReceiveDamage(int _damage)
+    {
+        health = health> 0 ? health -= _damage : health ;
+        health = health < 0 ? health = 0 : health;
     }
 
     public void OnDrawGizmosSelected()

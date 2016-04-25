@@ -65,7 +65,7 @@ public class TurretMover : Mover
             if (Input.GetMouseButton(1))
             {
                 targetTransform.parent = null;
-                targetTransform.position = UnitMovement.mouseToWorldPosition;
+                targetTransform.position = CameraFollow.mouseToWorldPosition;
                 target = targetTransform;
                 UnGround();
             }

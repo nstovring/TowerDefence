@@ -27,20 +27,23 @@ public class UnitMovement : Mover {
     void FixedUpdate()
     {
         // Store the input axes.
-        float h = Input.GetAxisRaw("Horizontal");
-        float v = Input.GetAxisRaw("Vertical");
+        if (CameraFollow.myCurrentViewType == CameraFollow.ViewType.PlayerView)
+        {
+            float h = Input.GetAxisRaw("Horizontal");
+            float v = Input.GetAxisRaw("Vertical");
 
-        // Move the player around the scene.
-        Move(h, v);
+            // Move the player around the scene.
+            Move(h, v);
 
-        // Turn the player to face the mouse cursor.
-        Turning();
+            // Turn the player to face the mouse cursor.
+            Turning();
 
-        //If GamePad is connected turn like this
-        //GamePadTurning();
-        //GamePadMove();
-        // Animate the player.
-        //Animating(h, v);
+            //If GamePad is connected turn like this
+            //GamePadTurning();
+            //GamePadMove();
+            // Animate the player.
+            //Animating(h, v);
+        }
     }
 
    
@@ -57,7 +60,6 @@ public class UnitMovement : Mover {
         playerRigidbody.MovePosition(transform.position + movement);
     }
 
-    public static Vector3 mouseToWorldPosition;
     public static Quaternion playerRotation;
 
     private void GamePadMove()
@@ -112,7 +114,6 @@ public class UnitMovement : Mover {
             // Set the player's rotation to this new rotation.
             playerRigidbody.MoveRotation(newRotation);
             playerRotation = newRotation;
-            mouseToWorldPosition = floorHit.point;
         }
     }
 

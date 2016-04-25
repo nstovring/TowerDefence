@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class AIMovement : Mover
+public class EnemyMover : Mover
 {
 	// Use this for initialization
 	void Start ()

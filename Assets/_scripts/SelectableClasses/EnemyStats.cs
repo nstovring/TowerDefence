@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Enemy : Stats
+public class EnemyStats : Stats
 {
     private GameObject[] turretsSpawned;
 	// Use this for initialization
@@ -19,7 +19,6 @@ public class Enemy : Stats
 	    {
 	        GetComponent<Collider>().enabled = false;
             turretsSpawned = GameObject.FindGameObjectsWithTag("Turret");
-	        Debug.Log(BuildingSpawn.buildingsSpawned.Count);
             isAlive = false;
             foreach (GameObject turretGameObject in turretsSpawned)
             {
@@ -32,10 +31,10 @@ public class Enemy : Stats
 
     void OnCollisionEnter(Collision other)
     {
-        if (other.transform.tag == "m_Projectile")
-        {
-            health -= other.transform.GetComponent<Projectile>().damage;
-            Destroy(other.transform.gameObject);
-        }
+        //if (other.transform.tag == "m_Projectile")
+        //{
+        //    health -= other.transform.GetComponent<Projectile>().damage;
+        //    Destroy(other.transform.gameObject);
+        //}
     }
 }

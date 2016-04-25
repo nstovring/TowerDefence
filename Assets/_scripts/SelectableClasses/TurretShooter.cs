@@ -38,8 +38,9 @@ public class TurretShooter : Shooter
         GameObject shellInstance = Instantiate(projectile.gameObject, transform.position, transform.rotation) as GameObject;
         // Set the shell's velocity to the launch force in the fire position's forward direction.
         //shellInstance.GetComponent<Rigidbody>().velocity = launchForce * transform.forward;
-        shellInstance.GetComponent<Projectile>().damage = damage;
-        shellInstance.GetComponent<Projectile>().targetPos = myStats.myAimer.curTarget.transform;
+        //shellInstance.GetComponent<Projectile>().damage = damage;
+        //shellInstance.GetComponent<Projectile>().target = myStats.myAimer.curTarget;
+        shellInstance.GetComponent<Projectile>().Initialize(myStats.oppositionTag, myStats.myAimer.curTarget, damage);
         Destroy(shellInstance, 5);
     }
 }
