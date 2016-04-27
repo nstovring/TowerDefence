@@ -74,10 +74,12 @@ public class CameraFollow : MonoBehaviour
             targetCamPos = tacticalViewTransform.position;
             rotation = tacticalViewTransform.rotation;
             mainCamera.orthographic = true;
+            newSize = 25;
             myCurrentViewType = ViewType.TacticalView;
-        }else if (Input.GetKeyDown(KeyCode.Space) && myCurrentViewType != ViewType.PlayerView)
+        }else if (Input.GetKeyDown(KeyCode.Space) && myCurrentViewType == ViewType.TacticalView)
         {
             rotation = originalRotation;
+            newSize = 0;
             mainCamera.orthographic = false;
             myCurrentViewType = ViewType.PlayerView;
         }

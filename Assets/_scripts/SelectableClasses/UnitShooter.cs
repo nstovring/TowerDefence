@@ -15,7 +15,8 @@ public class UnitShooter : Shooter {
 
     public override void TakeAim()
     {
-        if (Input.GetMouseButton(0) && myStats.myMover.isInPlayerControl)
+        UnitMovement myMovement = myStats.myMover as UnitMovement;
+        if (Input.GetMouseButton(0) && myMovement.isInPlayerControl)
         {
             timePassed += Time.deltaTime;
             if (timePassed > fireRate)

@@ -7,8 +7,7 @@ public class Mover : MonoBehaviour
     protected NavMeshAgent myAgent;
     public Transform target;
 
-    public bool isInPlayerControl;
-
+    public string targetTag;
 
     // Use this for initialization
     void Start () {

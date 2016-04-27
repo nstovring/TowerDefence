@@ -7,7 +7,7 @@ public class EnemyMover : Mover
 	void Start ()
 	{
 	    InitializeMover();
-	    target = GameObject.FindGameObjectWithTag("m_Base").transform;
+	    target = GameObject.FindGameObjectWithTag(targetTag).transform;
 	}
 	
 	// Update is called once per frame
