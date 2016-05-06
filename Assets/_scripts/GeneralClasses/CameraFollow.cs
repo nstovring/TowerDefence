@@ -47,12 +47,22 @@ public class CameraFollow : MonoBehaviour
     public float zoomSmoothing = 1;
     float scrollDelta;
     private float newSize;
+
+    public Transform lookTransform;
+
     void FixedUpdate()
     {
         GetMouseScreenToRay();
         // Create a postion the camera is aiming for based on the offset from the target.
         if (myCurrentViewType == ViewType.PlayerView)
         {
+            //Vector3 newPos = new Vector3(transform.forward.);
+
+            transform.LookAt(lookTransform);
+            transform.right *= Input.GetAxis("Horizontal");
+            offset += (Camera.main.transform.forward*Input.GetAxis("Vertical")) +
+            (Camera.main.transform.right*Input.GetAxis("Horizontal"));
+            //offset += new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) + Camera.main.transform.forward;
             targetCamPos = target.position + offset;
         }
         if (myCurrentViewType == ViewType.TacticalView)

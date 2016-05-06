@@ -15,19 +15,20 @@ public class TurretMover : Mover
 	
 	// Update is called once per frame
 	void Update () {
-	    if (!isGrounded)
-	    {
-	        if (myStats.isAlive && !CheckIfAtDestination())
-	        {
-	            GotToTarget();
-	            return;
-	        }
-	        if (!myStats.isAlive)
-	        {
-	            StopMovement();
-	        }
-	    }
+	    //if (!isGrounded)
+	    //{
+	    //    if (myStats.isAlive && !CheckIfAtDestination())
+	    //    {
+	    //        GotToTarget();
+	    //        return;
+	    //    }
+	    //    if (!myStats.isAlive)
+	    //    {
+	    //        StopMovement();
+	    //    }
+	    //}
 	    GetTarget();
+        GotToTarget();
 	}
 
     public void Ground()
@@ -52,7 +53,7 @@ public class TurretMover : Mover
         {
             targetTransform.parent = gameObject.transform;
             target = null;
-            Ground();
+            //Ground();
             return true;
         }
         return false;
@@ -64,10 +65,11 @@ public class TurretMover : Mover
         {
             if (Input.GetMouseButton(1))
             {
+                Debug.Log("selected new position");
                 targetTransform.parent = null;
                 targetTransform.position = CameraFollow.mouseToWorldPosition;
                 target = targetTransform;
-                UnGround();
+                //UnGround();
             }
         }
     }
