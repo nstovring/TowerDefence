@@ -5,6 +5,7 @@ public abstract class Stats : MonoBehaviour {
 
     public bool isAlive = false;
     public bool isSelected = false;
+    public bool isLeader;
 
     public int health = 100;
     public float range = 20f;
@@ -17,7 +18,9 @@ public abstract class Stats : MonoBehaviour {
     public Aimer myAimer;
     public Shooter myShooter;
     public Mover myMover;
+    public Party myParty;
 
+    public Transform isSelectedIcon;
     public Texture myHealthBarSprite;
     private GameObject healthBarHolder;
 
@@ -41,6 +44,20 @@ public abstract class Stats : MonoBehaviour {
     {
         health = health> 0 ? health -= _damage : health ;
         health = health < 0 ? health = 0 : health;
+    }
+
+    public virtual void DisplaySelectedIcon()
+    {
+        if (isSelectedIcon == null) return;
+
+        if (isSelected)
+        {
+            isSelectedIcon.gameObject.SetActive(true);
+        }
+        else
+        {
+            isSelectedIcon.gameObject.SetActive(false);
+        }
     }
 
     public void OnDrawGizmosSelected()

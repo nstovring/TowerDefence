@@ -7,8 +7,7 @@ public class Mover : MonoBehaviour
     protected NavMeshAgent myAgent;
     public Transform target;
 
-    public bool isInPlayerControl;
-
+    public string targetTag;
 
     // Use this for initialization
     void Start () {
@@ -24,6 +23,7 @@ public class Mover : MonoBehaviour
     {
         myAgent = GetComponent<NavMeshAgent>();
         myStats = GetComponent<Stats>();
+        rb = GetComponent<Rigidbody>();
     }
 
     public void StopMovement()
@@ -31,12 +31,25 @@ public class Mover : MonoBehaviour
         myAgent.Stop();
     }
 
-    public void GotToTarget()
+    public virtual void GotToTarget()
     {
         if (target == null)
         {
             return;
         }
+        if(myAgent.isOnNavMesh)
         myAgent.SetDestination(target.position);
+    }
+
+    private NavMeshPath myPath;
+
+    private Rigidbody rb;
+
+    public virtual void GotToTargetVelocity()
+    {
+        if (target == null)
+        {
+            return;
+        }
     }
 }

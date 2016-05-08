@@ -47,12 +47,25 @@ public class CameraFollow : MonoBehaviour
     public float zoomSmoothing = 1;
     float scrollDelta;
     private float newSize;
+
+    public Transform lookTransform;
+
     void FixedUpdate()
     {
         GetMouseScreenToRay();
         // Create a postion the camera is aiming for based on the offset from the target.
         if (myCurrentViewType == ViewType.PlayerView)
         {
+            //Vector3 newPos = new Vector3(transform.forward.);
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(lookTransform.position - transform.position), Time.deltaTime);
+
+            //transform.LookAt(lookTransform);
+            //transform.lo
+            offset.x += Input.GetAxis("Horizontal");
+            offset.z += Input.GetAxis("Vertical");
+            //offset += (Camera.main.transform.forward*Input.GetAxis("Vertical")) +
+            //(Camera.main.transform.right*Input.GetAxis("Horizontal"));
+            //offset += new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) + Camera.main.transform.forward;
             targetCamPos = target.position + offset;
         }
         if (myCurrentViewType == ViewType.TacticalView)
@@ -66,18 +79,23 @@ public class CameraFollow : MonoBehaviour
         }
 
         // Smoothly interpolate between the camera's current position and it's target position.
-        transform.position = Vector3.Lerp(transform.position, targetCamPos, smoothing*Time.deltaTime);
-        transform.rotation = Quaternion.Lerp(transform.rotation, rotation, smoothing*Time.deltaTime);
+        //if (Vector3.Distance(transform.position, targetCamPos) > 10 )
+        //{
+            transform.position = Vector3.Lerp(transform.position, targetCamPos, smoothing*Time.deltaTime);
+            //transform.rotation = Quaternion.Lerp(transform.rotation, rotation, smoothing*Time.deltaTime);
+        //}
 
         if (Input.GetKeyDown(KeyCode.Space) && myCurrentViewType != ViewType.TacticalView)
         {
             targetCamPos = tacticalViewTransform.position;
             rotation = tacticalViewTransform.rotation;
             mainCamera.orthographic = true;
+            newSize = 25;
             myCurrentViewType = ViewType.TacticalView;
-        }else if (Input.GetKeyDown(KeyCode.Space) && myCurrentViewType != ViewType.PlayerView)
+        }else if (Input.GetKeyDown(KeyCode.Space) && myCurrentViewType == ViewType.TacticalView)
         {
             rotation = originalRotation;
+            newSize = 0;
             mainCamera.orthographic = false;
             myCurrentViewType = ViewType.PlayerView;
         }
@@ -85,6 +103,19 @@ public class CameraFollow : MonoBehaviour
         if (myCurrentViewType == ViewType.TacticalView)
         {
             TacticalViewMovement();
+        }
+        ChangePositions();
+    }
+
+    void ChangePositions()
+    {
+        if (Input.GetKeyUp(KeyCode.Q))
+        {
+            offset.x = 8.3f;
+        }
+        if (Input.GetKeyUp(KeyCode.E))
+        {
+            offset.x = -8.3f;
         }
     }
 

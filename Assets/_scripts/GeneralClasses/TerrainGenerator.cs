@@ -27,6 +27,8 @@ public class TerrainGenerator : MonoBehaviour
 
     private GameObject terrainGameObject;
 
+    public int groundScale;
+
     public void GenerateTerrain()
     {
         if (terrainGameObject != null)
@@ -34,7 +36,7 @@ public class TerrainGenerator : MonoBehaviour
             DestroyImmediate(terrainGameObject);
         }
         spawnPoint = transform.position;
-        float groundSize = groundPrefab.transform.localScale.z * 3;
+        float groundSize = groundPrefab.transform.localScale.z * groundScale;
         terrainGameObject = Instantiate(groundPrefab, spawnPoint, Quaternion.identity) as GameObject;
         terrainGameObject.transform.localScale *= transform.localScale.z;
         terrainGameObject.transform.parent = transform;
