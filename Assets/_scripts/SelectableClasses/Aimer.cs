@@ -12,7 +12,7 @@ public abstract class Aimer : MonoBehaviour {
 
     public virtual void Initialize()
     {
-        layerMask = LayerMask.NameToLayer(oppositionTag);
+        layerMask = LayerMask.NameToLayer("isSelectable");
         layerMask =  1 << layerMask;
     }
 

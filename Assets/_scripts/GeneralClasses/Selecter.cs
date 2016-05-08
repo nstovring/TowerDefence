@@ -6,7 +6,7 @@ public class Selecter : MonoBehaviour {
     float camRayLength = 100f;          // The length of the ray from the camera into the scene.
     int isSelectableMask;               // A layer mask so that a ray can be cast just at gameobjects on the IsSelectable layer.
 
-    public List<Stats> selectedObjectList; 
+    public static List<Stats> selectedObjectList; 
     // Use this for initialization
     void Start () {
         isSelectableMask = LayerMask.GetMask("isSelectable");

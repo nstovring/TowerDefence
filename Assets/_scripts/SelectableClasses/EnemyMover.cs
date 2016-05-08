@@ -23,5 +23,13 @@ public class EnemyMover : Mover
 	    }
 	}
 
-  
+    public override void GotToTarget()
+    {
+        if (myStats.myAimer.curTarget)
+        {
+            target = myStats.myAimer.curTarget.transform;
+            return;
+        }
+        base.GotToTarget();
+    }
 }

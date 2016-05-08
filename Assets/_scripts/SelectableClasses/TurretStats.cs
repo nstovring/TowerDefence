@@ -13,7 +13,7 @@ public class TurretStats : Stats
 	
 	// Update is called once per frame
 	void Update () {
-	
+        DisplaySelectedIcon();
 	}
 
     

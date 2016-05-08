@@ -8,9 +8,14 @@ public class TurretMover : Mover
 
     public Transform targetTransform;
     // Use this for initialization
+
+    private Vector3 positionalOffset;
+
 	void Start () {
         InitializeMover();
 	    myMeshObstacle = GetComponent<NavMeshObstacle>();
+	    positionalOffset = targetTransform.position - transform.position;
+	    target = targetTransform;
 	}
 	
 	// Update is called once per frame
@@ -59,17 +64,28 @@ public class TurretMover : Mover
         return false;
     }
 
+    public override void GotToTarget()
+    {
+        base.GotToTarget();
+    }
+
     public void GetTarget()
     {
+       
         if (myStats.isSelected)
         {
             if (Input.GetMouseButton(1))
             {
-                Debug.Log("selected new position");
-                targetTransform.parent = null;
-                targetTransform.position = CameraFollow.mouseToWorldPosition;
-                target = targetTransform;
-                //UnGround();
+                Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+                // Create a RaycastHit variable to store information about what was hit by the ray.
+                RaycastHit isSelectableHit;
+                if (Physics.Raycast(camRay, out isSelectableHit, 1000))
+                {
+                        targetTransform.parent = null;
+                        targetTransform.position = CameraFollow.mouseToWorldPosition;
+                        targetTransform.parent = GameObject.FindGameObjectWithTag("Grid").transform;
+                        target = targetTransform;
+                }
             }
         }
     }

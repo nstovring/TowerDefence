@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class TurretAimer : Aimer
 {
-    public TurretStats myStats;
+    public Stats myStats;
 
 
 	// Use this for initialization
@@ -21,7 +21,7 @@ public class TurretAimer : Aimer
 	    if (myStats.isAlive)
 	    {
 	        //Find enemies
-	        FindEnemies("Enemy",layerMask);
+	        FindEnemies(oppositionTag, layerMask);
 	        if (curTarget)
 	        {
 	            AimAtTarget(curTarget.transform);
