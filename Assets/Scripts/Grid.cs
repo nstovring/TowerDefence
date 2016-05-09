@@ -7,10 +7,8 @@ using System.Collections.Generic;
 //[ExecuteInEditMode]
 public class Grid : MonoBehaviour
 {
-	
+    public Transform[] destinations = new Transform[4];
 	[ SerializeField ] private Transform _transform;
-	
-	[ SerializeField ] private Material _material;
 	
 	[ SerializeField ] private Vector2 _gridSize;
 	
@@ -45,10 +43,12 @@ public class Grid : MonoBehaviour
             for (int j = 0; j < _columns; j++)
             {
                 Vector3 cellposition = new Vector3(i * cellSize, 0, j * cellSize) + (transform.position - transform.localScale * transform.localScale.x);
-                Transform newObject = new GameObject("GridPosition :" + i +","+ j).GetComponent<Transform>();
-                newObject.position = cellposition;
-                newObject.parent = transform;
-                GridMatrix[i, j] = newObject;
+                GameObject newObject = Instantiate(cellPrefab, cellposition, Quaternion.identity) as GameObject;
+                //Transform newObject = new GameObject("GridPosition :" + i +","+ j).GetComponent<Transform>();
+                newObject.transform.position = cellposition;
+                newObject.transform.parent = transform;
+                newObject.transform.localScale = Vector3.one/cellSize;
+                GridMatrix[i, j] = newObject.transform;
             }
         }
         UpdateGrid();
@@ -56,7 +56,7 @@ public class Grid : MonoBehaviour
 	}
 
     public float speed;
-
+    private int destinationIncrement = 0;
     public void Update()
     {
         UpdateGrid();
@@ -65,10 +65,50 @@ public class Grid : MonoBehaviour
         //    unit.parent = transform;
         //}
         float step = speed * Time.deltaTime;
-        transform.position = Vector3.MoveTowards(transform.position, target.position, step);
+        transform.LookAt(target);
+        Vector3 newVector3 = new Vector3(target.position.x,transform.position.y, target.position.z);
+        if (Vector3.Distance(transform.position, newVector3) > 5)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, newVector3, step);
+        }
+        else
+        {
+            SetDestination(destinations[destinationIncrement]);
+            destinationIncrement++;
+            destinationIncrement = destinationIncrement%4;
+        }
     }
 
     public bool gridGenerated;
+    public float navmeshRange = 0.3f;
+    public Transform GetNearestCellOnNavmesh(Transform currentTransformTarget)
+    {
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(currentTransformTarget.position, out hit, navmeshRange, NavMesh.AllAreas))
+        {
+            return currentTransformTarget;
+        }
+        return GetClosestPosition(currentTransformTarget);
+    }
+
+    public Transform GetClosestPosition(Transform targetedPoint)
+    {
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _columns; j++)
+            {
+                if (Vector3.Distance(GridMatrix[i, j].position, targetedPoint.position) < cellSize)
+                {
+                    //NavMeshHit hit;
+                    //if (NavMesh.SamplePosition(GridMatrix[i, j].position, out hit, navmeshRange, NavMesh.AllAreas))
+                    //{
+                        return GridMatrix[i, j + 5];
+                    //}
+                }
+            }
+        }
+        return targetedPoint;
+    }
 
     public Transform GetClosestPosition(Vector3 targetedPoint)
     {
@@ -78,7 +118,11 @@ public class Grid : MonoBehaviour
             {
                 if (Vector3.Distance(GridMatrix[i, j].position, targetedPoint) < cellSize)
                 {
-                    return GridMatrix[i, j];
+                    NavMeshHit hit;
+                    if (NavMesh.SamplePosition(GridMatrix[i, j].position, out hit, navmeshRange, NavMesh.AllAreas))
+                    {
+                        return GridMatrix[i, j ];
+                    }
                 }
             }
         }
@@ -87,12 +131,20 @@ public class Grid : MonoBehaviour
 
     public void UpdateGrid()
 	{
-       
+        //for (int i = 0; i < _rows; i++)
+        //{
+        //    for (int j = 0; j < _columns; j++)
+        //    {
+        //        Vector3 cellposition = new Vector3(i * cellSize, 0, j * cellSize) + (transform.position - transform.localScale * transform.localScale.x);
+        //        //Transform newObject = new GameObject("GridPosition :" + i +","+ j).GetComponent<Transform>();
+        //        GridMatrix[i, j].position = cellposition;
+        //    }
+        //}
 
-       // _transform.localScale = new Vector3( _gridSize.x, _gridSize.y, 1.0f );
-		
-		//_material.SetTextureScale( "_MainTex", new Vector2( _columns, _rows ) );
-	}
+        // _transform.localScale = new Vector3( _gridSize.x, _gridSize.y, 1.0f );
+
+        //_material.SetTextureScale( "_MainTex", new Vector2( _columns, _rows ) );
+    }
 
     //void OnDrawGizmosSelected()
     //{

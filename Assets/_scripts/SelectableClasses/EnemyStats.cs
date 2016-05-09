@@ -31,12 +31,14 @@ public class EnemyStats : Stats
 
 	        foreach (var childrenTransform in childrenTransforms)
 	        {
+                if(childrenTransform.GetComponent<Rigidbody>() == null)
 	            childrenTransform.gameObject.AddComponent<Rigidbody>();
 	            childrenTransform.parent = null;
+                Destroy(childrenTransform.gameObject,Random.Range(1.5f, 9f));
 	        }
 
 	        Instantiate(explosionPrefab, transform.position, Quaternion.identity);
-            Destroy(gameObject,2);
+            Destroy(gameObject);
 	    }
         ResizeHealthBar();
 	}

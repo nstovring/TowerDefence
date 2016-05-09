@@ -15,7 +15,7 @@ public class CameraFollow : MonoBehaviour
     public static Vector3 mouseToWorldPosition;
 
     int floorMask;                      // A layer mask so that a ray can be cast just at gameobjects on the floor layer.
-    float camRayLength = 100f;          // The length of the ray from the camera into the scene.
+    float camRayLength = 1000f;          // The length of the ray from the camera into the scene.
 
     public enum ViewType
     {
@@ -57,12 +57,12 @@ public class CameraFollow : MonoBehaviour
         if (myCurrentViewType == ViewType.PlayerView)
         {
             //Vector3 newPos = new Vector3(transform.forward.);
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(lookTransform.position - transform.position), Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(lookTransform.position - transform.position), smoothing * Time.deltaTime);
 
             //transform.LookAt(lookTransform);
             //transform.lo
-            offset.x += Input.GetAxis("Horizontal");
-            offset.z += Input.GetAxis("Vertical");
+            //offset.x += Input.GetAxis("Horizontal");
+            //offset.z += Input.GetAxis("Vertical");
             //offset += (Camera.main.transform.forward*Input.GetAxis("Vertical")) +
             //(Camera.main.transform.right*Input.GetAxis("Horizontal"));
             //offset += new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) + Camera.main.transform.forward;

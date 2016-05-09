@@ -21,7 +21,14 @@ public class Mover : MonoBehaviour
 
     public void InitializeMover()
     {
-        myAgent = GetComponent<NavMeshAgent>();
+        if (GetComponent<NavMeshAgent>())
+        {
+            myAgent = GetComponent<NavMeshAgent>();
+        }
+        else
+        {
+            myAgent = GetComponentInChildren<NavMeshAgent>();
+        }
         myStats = GetComponent<Stats>();
         rb = GetComponent<Rigidbody>();
     }
@@ -31,7 +38,7 @@ public class Mover : MonoBehaviour
         myAgent.Stop();
     }
 
-    public virtual void GotToTarget()
+    public virtual void GoToTarget()
     {
         if (target == null)
         {

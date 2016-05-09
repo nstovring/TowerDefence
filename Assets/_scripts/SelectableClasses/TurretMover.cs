@@ -33,7 +33,7 @@ public class TurretMover : Mover
 	    //    }
 	    //}
 	    GetTarget();
-        GotToTarget();
+        GoToTarget();
 	}
 
     public void Ground()
@@ -64,9 +64,9 @@ public class TurretMover : Mover
         return false;
     }
 
-    public override void GotToTarget()
+    public override void GoToTarget()
     {
-        base.GotToTarget();
+        base.GoToTarget();
     }
 
     public void GetTarget()

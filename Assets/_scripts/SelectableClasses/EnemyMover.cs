@@ -14,7 +14,7 @@ public class EnemyMover : Mover
 	void Update () {
 	    if (myStats.isAlive)
 	    {
-	        GotToTarget();
+	        GoToTarget();
             return;
 	    }
 	    if (!myStats.isAlive)
@@ -23,13 +23,14 @@ public class EnemyMover : Mover
 	    }
 	}
 
-    public override void GotToTarget()
+    public override void GoToTarget()
     {
         if (myStats.myAimer.curTarget)
         {
-            target = myStats.myAimer.curTarget.transform;
+            target = myStats.myParty.grid.GetClosestPosition(myStats.myAimer.curTarget.transform);
+            //target = myStats.myAimer.curTarget.transform;
             return;
         }
-        base.GotToTarget();
+        base.GoToTarget();
     }
 }
