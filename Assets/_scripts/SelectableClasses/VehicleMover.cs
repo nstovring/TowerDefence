@@ -22,9 +22,13 @@ public class VehicleMover : Mover
         positionalOffset = targetTransform.position - transform.position;
         target = targetTransform;
 
-        for (int i = 0; i < wheels.Length; i++)
+        if (wheels[0] != null)
         {
-            wheelColliders[i] = wheels[i].gameObject.GetComponent<WheelCollider>();
+            for (int i = 0; i < wheels.Length; i++)
+            {
+                wheelColliders[i] = wheels[i].gameObject.GetComponent<WheelCollider>();
+                wheelPrefabs[i] = wheels[i].GetChild(0);
+            }
         }
         //targetTransform = GameObject.FindGameObjectWithTag(targetTag).transform;
         //grid.SetDestination(targetTransform);
@@ -139,11 +143,19 @@ public class VehicleMover : Mover
     }
 
     public Transform[] wheels = new Transform[4];
-    public WheelCollider[] wheelColliders = new WheelCollider[4];
+    public Transform[] wheelPrefabs = new Transform[4];
+
+    private WheelCollider[] wheelColliders = new WheelCollider[4];
 
 
     WheelCollider GetCollider(int i)
     {
+        Vector3 wheelPos;
+        Quaternion wheelOrientation;
+        wheelColliders[i].GetWorldPose(out wheelPos, out wheelOrientation);
+        wheelOrientation.eulerAngles += new Vector3(0,0,90);//= new Vector3(wheelOrientation.eulerAngles.x, wheelOrientation.eulerAngles.y, wheelOrientation.eulerAngles.z + 90);
+        wheelPrefabs[i].position = wheelPos;
+        wheelPrefabs[i].rotation = wheelOrientation;
         return wheelColliders[i];
     }
 

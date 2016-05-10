@@ -69,9 +69,10 @@ public class Grid : MonoBehaviour
         Vector3 newVector3 = new Vector3(target.position.x,transform.position.y, target.position.z);
         if (Vector3.Distance(transform.position, newVector3) > 5)
         {
-            transform.position = Vector3.MoveTowards(transform.position, newVector3, step);
+            Vector3 newDirection = newVector3 - transform.position; 
+            transform.position += newDirection.normalized * step;
         }
-        else
+        else if(destinations[0] != null)
         {
             SetDestination(destinations[destinationIncrement]);
             destinationIncrement++;

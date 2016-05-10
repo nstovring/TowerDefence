@@ -50,11 +50,11 @@ public abstract class Stats : MonoBehaviour {
     {
         if (isSelectedIcon == null) return;
 
-        if (isSelected)
+        if (isSelected && !isSelectedIcon.gameObject.activeSelf)
         {
             isSelectedIcon.gameObject.SetActive(true);
         }
-        else
+        else if(isSelectedIcon.gameObject.activeSelf)
         {
             isSelectedIcon.gameObject.SetActive(false);
         }

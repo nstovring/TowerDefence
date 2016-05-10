@@ -13,7 +13,11 @@ public class TurretAimer : Aimer
 	    range = myStats.range;
 	    oppositionTag = myStats.oppositionTag;
         Initialize();
-	}
+	    //if (myStats.isAlive)
+	    //{
+	        StartCoroutine(FindEnemies(oppositionTag, layerMask));
+        //}
+    }
 	
 	// Update is called once per frame
 	void Update ()
@@ -21,7 +25,6 @@ public class TurretAimer : Aimer
 	    if (myStats.isAlive)
 	    {
 	        //Find enemies
-	        FindEnemies(oppositionTag, layerMask);
 	        if (curTarget)
 	        {
 	            AimAtTarget(curTarget.transform);

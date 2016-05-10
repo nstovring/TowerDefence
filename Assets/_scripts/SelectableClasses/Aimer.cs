@@ -9,11 +9,13 @@ public abstract class Aimer : MonoBehaviour {
     public List<Stats> enemies;
     public string oppositionTag;
     protected int layerMask = 0;
+    public LayerMask myAimableLayerMask;
 
     public virtual void Initialize()
     {
         layerMask = LayerMask.NameToLayer("isSelectable");
-        layerMask =  1 << layerMask;
+        layerMask = myAimableLayerMask;
+        //layerMask =  1 << layerMask;
     }
 
     public virtual void AimAtTarget(Transform target)
@@ -21,33 +23,37 @@ public abstract class Aimer : MonoBehaviour {
         transform.LookAt(target.position);
     }
 
-    public virtual void FindEnemies(string opposition, int layerMask)
+    public virtual IEnumerator FindEnemies(string opposition, int layerMask)
     {
-        if (!SelectEnemy())
+        while (true)
         {
-            //Create collision sphere
-            Collider[] hitColliders = Physics.OverlapSphere(transform.position, range, layerMask);
-            foreach (var hitCollider in hitColliders)
+            if (!SelectEnemy())
             {
-                if (hitCollider.transform.tag == opposition)
+                //Create collision sphere
+                Collider[] hitColliders = Physics.OverlapSphere(transform.position, range, layerMask);
+                foreach (var hitCollider in hitColliders)
                 {
-                    Stats curEnemy = hitCollider.transform.GetComponent<Stats>();
-                    //Check if enemy detected is alive should update enemy with removal of collider btw
-                    if (!curEnemy.isAlive)
+                    if (hitCollider.transform.tag == opposition)
                     {
-                        if (enemies.Contains(curEnemy))
+                        Stats curEnemy = hitCollider.transform.GetComponent<Stats>();
+                        //Check if enemy detected is alive should update enemy with removal of collider btw
+                        if (!curEnemy.isAlive)
                         {
-                            enemies.Remove(curEnemy);
+                            if (enemies.Contains(curEnemy))
+                            {
+                                enemies.Remove(curEnemy);
+                            }
+                            yield return new WaitForFixedUpdate();
                         }
-                        return;
-                    }
-                    if (!enemies.Contains(curEnemy))
-                    {
-                        enemies.Add(curEnemy);
-                        return;
+                        if (!enemies.Contains(curEnemy))
+                        {
+                            enemies.Add(curEnemy);
+                            yield return new WaitForFixedUpdate();
+                        }
                     }
                 }
             }
+            yield return new WaitForSeconds(2);
         }
     }
 
