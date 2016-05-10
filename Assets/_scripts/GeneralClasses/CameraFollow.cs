@@ -14,8 +14,8 @@ public class CameraFollow : MonoBehaviour
     public Transform tacticalViewTransform;
     public static Vector3 mouseToWorldPosition;
 
-    int floorMask;                      // A layer mask so that a ray can be cast just at gameobjects on the floor layer.
-    float camRayLength = 1000f;          // The length of the ray from the camera into the scene.
+    static int floorMask;                      // A layer mask so that a ray can be cast just at gameobjects on the floor layer.
+    static float camRayLength = 1000f;          // The length of the ray from the camera into the scene.
 
     public enum ViewType
     {
@@ -52,20 +52,15 @@ public class CameraFollow : MonoBehaviour
 
     void FixedUpdate()
     {
-        GetMouseScreenToRay();
+        //if (Input.GetMouseButton(0))
+        //{
+        //    GetMouseScreenToRay();
+        //}
         // Create a postion the camera is aiming for based on the offset from the target.
         if (myCurrentViewType == ViewType.PlayerView)
         {
             //Vector3 newPos = new Vector3(transform.forward.);
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(lookTransform.position - transform.position), smoothing * Time.deltaTime);
-
-            //transform.LookAt(lookTransform);
-            //transform.lo
-            //offset.x += Input.GetAxis("Horizontal");
-            //offset.z += Input.GetAxis("Vertical");
-            //offset += (Camera.main.transform.forward*Input.GetAxis("Vertical")) +
-            //(Camera.main.transform.right*Input.GetAxis("Horizontal"));
-            //offset += new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) + Camera.main.transform.forward;
             targetCamPos = target.position + offset;
         }
         if (myCurrentViewType == ViewType.TacticalView)
@@ -126,7 +121,7 @@ public class CameraFollow : MonoBehaviour
         targetCamPos += new Vector3(Input.GetAxis("Horizontal"),0, Input.GetAxis("Vertical"));
     }
 
-    public void GetMouseScreenToRay()
+    public static Vector3 GetMouseScreenToRay()
     {
         // Create a ray from the mouse cursor on screen in the direction of the camera.
         Ray camRay = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -135,7 +130,8 @@ public class CameraFollow : MonoBehaviour
         // Perform the raycast and if it hits something on the floor layer...
         if (Physics.Raycast(camRay, out floorHit, camRayLength, floorMask))
         {
-            mouseToWorldPosition = floorHit.point;
+            return mouseToWorldPosition = floorHit.point;
         }
+        return Vector3.zero;
     }
 }

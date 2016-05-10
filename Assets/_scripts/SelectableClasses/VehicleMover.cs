@@ -16,7 +16,7 @@ public class VehicleMover : Mover
     void Start()
     {
         InitializeMover();
-        rigidbody = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
         grid = myStats.myParty.grid;
         targetTransform = grid.GetClosestPosition(targetTransform);
         positionalOffset = targetTransform.position - transform.position;
@@ -30,15 +30,13 @@ public class VehicleMover : Mover
                 wheelPrefabs[i] = wheels[i].GetChild(0);
             }
         }
-        //targetTransform = GameObject.FindGameObjectWithTag(targetTag).transform;
-        //grid.SetDestination(targetTransform);
+        StartCoroutine(GoToTarget());
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
         GetTarget();
-        GoToTarget();
     }
 
     public bool CheckIfAtDestination()
@@ -65,81 +63,93 @@ public class VehicleMover : Mover
 
     public float minSpeedUpRange = 5;
     public float maxTargetRange = 10;
+    bool reversing;
 
-    private Rigidbody rigidbody;
-    public override void GoToTarget()
+    public override IEnumerator GoToTarget()
     {
-        //base.GoToTarget();
-        if (wheels[0] == null)
+        while (true)
         {
-            base.GoToTarget();
-            return;
+            if (myAgent.isOnNavMesh)
+            {
+                myAgent.SetDestination(grid.GetNearestCellOnNavmesh(target).position);
+            }
+            myAgent.transform.position = transform.position;
+            //Checks if current target is on the navmesh else replace it with one that is
+
+            Vector3 desiredDirection = myAgent.desiredVelocity;
+            float curlookAngle = Vector3.Angle(desiredDirection, transform.forward);
+            // assume the sign of the cross product's Y component:
+            curlookAngle *= Mathf.Sign(Vector3.Cross(desiredDirection, transform.forward).y)* -1;
+
+            //Debug.DrawRay(transform.position, desiredDirection* 5,Color.red);
+
+            //Debug.DrawLine(transform.position, target.position, Color.blue);
+
+            float rangeFromTarget = Vector3.Distance(target.position, transform.position) + maxTargetRange;
+            int range = 5;
+
+            if (curlookAngle >= -120 && curlookAngle - range <= 120)
+            {
+                reversing = false;
+            }
+            else
+            {
+                reversing = true;
+            }
+
+            if ((curlookAngle + range >= -120 - range && curlookAngle - range <= 120 + range) && rangeFromTarget > maxTargetRange)
+            {
+                steer = (curlookAngle / 360f) * maxSteer;
+            }
+            else
+            {
+                power = -(enginePower * Time.deltaTime * 250f);
+                brake = 0.0f;
+                steer = -((curlookAngle / 360f) * maxSteer) / 2;
+            }
+            yield return new WaitForEndOfFrame();
+
+            if (rangeFromTarget < minSpeedUpRange && rb.velocity.magnitude < standardVelocity)
+            {
+                power = (enginePower*Time.deltaTime*250f);
+                brake = 0.0f;
+            }
+            else if (rangeFromTarget > minSpeedUpRange && rb.velocity.magnitude < maxVelocity)
+            {
+                power = (enginePower*Time.deltaTime*250f);
+                brake = 0.0f;
+            }
+            else
+            {
+                float desiredVelocity = Mathf.Abs(rb.velocity.magnitude - standardVelocity);
+                brake = desiredVelocity*10;
+                power = 0;
+            }
+            yield return new WaitForEndOfFrame();
+            
+
+            GetCollider(0).steerAngle = steer;
+            GetCollider(1).steerAngle = steer;
+
+            if (brake > 0.0)
+            {
+                GetCollider(0).brakeTorque = brake;
+                GetCollider(1).brakeTorque = brake;
+                GetCollider(2).brakeTorque = brake;
+                GetCollider(3).brakeTorque = brake;
+                GetCollider(2).motorTorque = 0.0f;
+                GetCollider(3).motorTorque = 0.0f;
+            }
+            else {
+                GetCollider(0).brakeTorque = 0;
+                GetCollider(1).brakeTorque = 0;
+                GetCollider(2).brakeTorque = 0;
+                GetCollider(3).brakeTorque = 0;
+                GetCollider(2).motorTorque = power;
+                GetCollider(3).motorTorque = power;
+            }
+            yield return new WaitForFixedUpdate();
         }
-
-        if (myAgent.isOnNavMesh)
-        {
-            myAgent.SetDestination(grid.GetNearestCellOnNavmesh(target).position);
-        }
-        myAgent.transform.position = transform.position;
-        //Checks if current target is on the navmesh else replace it with one that is
-
-        Vector3 desiredDirection = myAgent.desiredVelocity;
-        float curlookAngle = Vector3.Angle(desiredDirection, transform.forward);
-
-        // assume the sign of the cross product's Y component:
-        curlookAngle *= Mathf.Sign(Vector3.Cross(desiredDirection, transform.forward).y)* -1;
-
-        Debug.DrawRay(transform.position, desiredDirection* 5,Color.red);
-
-        Debug.DrawLine(transform.position, target.position, Color.blue);
-
-        float rangeFromTarget = Vector3.Distance(target.position, transform.position) + maxTargetRange;
-
-        if (rangeFromTarget < minSpeedUpRange && rigidbody.velocity.magnitude < standardVelocity)
-        {
-            power = (enginePower*Time.deltaTime*250f);
-            brake = 0.0f;
-        }
-        else if (rangeFromTarget > minSpeedUpRange && rigidbody.velocity.magnitude < maxVelocity)
-        {
-            power = (enginePower*Time.deltaTime*250f);
-            brake = 0.0f;
-        }
-        else
-        {
-            float desiredVelocity = Mathf.Abs(rigidbody.velocity.magnitude - standardVelocity);
-            brake = desiredVelocity*10;
-            power = 0;
-            //brake = 1 + (150-(rangeFromTarget*5));
-        }
-        //if (curlookAngle < 0)
-        //{
-        //    steer = Mathf.Abs(curlookAngle);
-        //}
-
-        steer = (curlookAngle/360f)*maxSteer;
-       
-        GetCollider(0).steerAngle = steer;
-        GetCollider(1).steerAngle = steer;
-
-        if (brake > 0.0)
-        {
-            GetCollider(0).brakeTorque = brake;
-            GetCollider(1).brakeTorque = brake;
-            GetCollider(2).brakeTorque = brake;
-            GetCollider(3).brakeTorque = brake;
-            GetCollider(2).motorTorque = 0.0f;
-            GetCollider(3).motorTorque = 0.0f;
-        }
-        else {
-            GetCollider(0).brakeTorque = 0;
-            GetCollider(1).brakeTorque = 0;
-            GetCollider(2).brakeTorque = 0;
-            GetCollider(3).brakeTorque = 0;
-            GetCollider(2).motorTorque = power;
-            GetCollider(3).motorTorque = power;
-        }
-
     }
 
     public Transform[] wheels = new Transform[4];
@@ -166,7 +176,7 @@ public class VehicleMover : Mover
         {
             if (Input.GetMouseButton(1))
             {
-                targetTransform = grid.GetClosestPosition(CameraFollow.mouseToWorldPosition + transform.forward * (-maxTargetRange + minSpeedUpRange));
+                targetTransform = grid.GetClosestPosition(CameraFollow.GetMouseScreenToRay() + transform.forward * (-maxTargetRange + minSpeedUpRange));
                 if (targetTransform != null)
                 {
                     target = targetTransform;

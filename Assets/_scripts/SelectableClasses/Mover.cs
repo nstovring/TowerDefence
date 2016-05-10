@@ -38,19 +38,20 @@ public class Mover : MonoBehaviour
         myAgent.Stop();
     }
 
-    public virtual void GoToTarget()
+    public virtual IEnumerator GoToTarget()
     {
         if (target == null)
         {
-            return;
+            yield return null;
         }
         if(myAgent.isOnNavMesh)
         myAgent.SetDestination(target.position);
+        yield return new WaitForFixedUpdate();
     }
 
     private NavMeshPath myPath;
 
-    private Rigidbody rb;
+    protected Rigidbody rb;
 
     public virtual void GotToTargetVelocity()
     {

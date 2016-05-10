@@ -44,28 +44,20 @@ public class Grid : MonoBehaviour
             {
                 Vector3 cellposition = new Vector3(i * cellSize, 0, j * cellSize) + (transform.position - transform.localScale * transform.localScale.x);
                 GameObject newObject = Instantiate(cellPrefab, cellposition, Quaternion.identity) as GameObject;
-                //Transform newObject = new GameObject("GridPosition :" + i +","+ j).GetComponent<Transform>();
                 newObject.transform.position = cellposition;
                 newObject.transform.parent = transform;
                 newObject.transform.localScale = Vector3.one/cellSize;
                 GridMatrix[i, j] = newObject.transform;
             }
         }
-        UpdateGrid();
-	    
 	}
 
     public float speed;
     private int destinationIncrement = 0;
     public void Update()
     {
-        UpdateGrid();
-        //foreach (var unit in unitsInGrid)
-        //{
-        //    unit.parent = transform;
-        //}
         float step = speed * Time.deltaTime;
-        transform.LookAt(target);
+        //transform.LookAt(target);
         Vector3 newVector3 = new Vector3(target.position.x,transform.position.y, target.position.z);
         if (Vector3.Distance(transform.position, newVector3) > 5)
         {
@@ -100,11 +92,7 @@ public class Grid : MonoBehaviour
             {
                 if (Vector3.Distance(GridMatrix[i, j].position, targetedPoint.position) < cellSize)
                 {
-                    //NavMeshHit hit;
-                    //if (NavMesh.SamplePosition(GridMatrix[i, j].position, out hit, navmeshRange, NavMesh.AllAreas))
-                    //{
                         return GridMatrix[i, j + 5];
-                    //}
                 }
             }
         }
@@ -129,33 +117,4 @@ public class Grid : MonoBehaviour
         }
         return null;
     }
-
-    public void UpdateGrid()
-	{
-        //for (int i = 0; i < _rows; i++)
-        //{
-        //    for (int j = 0; j < _columns; j++)
-        //    {
-        //        Vector3 cellposition = new Vector3(i * cellSize, 0, j * cellSize) + (transform.position - transform.localScale * transform.localScale.x);
-        //        //Transform newObject = new GameObject("GridPosition :" + i +","+ j).GetComponent<Transform>();
-        //        GridMatrix[i, j].position = cellposition;
-        //    }
-        //}
-
-        // _transform.localScale = new Vector3( _gridSize.x, _gridSize.y, 1.0f );
-
-        //_material.SetTextureScale( "_MainTex", new Vector2( _columns, _rows ) );
-    }
-
-    //void OnDrawGizmosSelected()
-    //{
-    //    UpdateGrid();
-    //    for (int i = 0; i < _rows; i++)
-    //    {
-    //        for (int j = 0; j < _columns; j++)
-    //        {
-    //            Gizmos.DrawCube(GridMatrix[i, j], Vector3.one);
-    //        }
-    //    }
-    //}
 }

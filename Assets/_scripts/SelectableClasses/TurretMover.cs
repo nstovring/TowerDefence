@@ -64,11 +64,6 @@ public class TurretMover : Mover
         return false;
     }
 
-    public override void GoToTarget()
-    {
-        base.GoToTarget();
-    }
-
     public void GetTarget()
     {
        
