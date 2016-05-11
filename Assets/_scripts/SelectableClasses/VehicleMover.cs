@@ -18,35 +18,34 @@ public class Engine
 
     [Range(0, 50)]
     public float minSpeedUpRange = 5;
-    [Range(50, 0)]
-    public float maxTargetRange = -10;
+
     public bool reversing;
 
     private int powerMultiplier = 100;
 
     public void AddPower(float rangeFromTarget, float currentVelocity)
     {
-        if (rangeFromTarget < minSpeedUpRange && currentVelocity < standardVelocity)
+        if (rangeFromTarget-5 < minSpeedUpRange+5 && currentVelocity < standardVelocity)
         {
-            power = (enginePower * Time.deltaTime * powerMultiplier * (currentVelocity / standardVelocity));
-            brake = 0.0f;
+            float desiredVelocity = Mathf.Abs(currentVelocity / standardVelocity);
+            brake = desiredVelocity * powerMultiplier * 250f;
+            power = 0;
         }
-        else if (rangeFromTarget > minSpeedUpRange && currentVelocity < maxVelocity)
+        else if (rangeFromTarget - 5 > minSpeedUpRange + 5 && currentVelocity < maxVelocity)
         {
-            power = (enginePower * Time.deltaTime * powerMultiplier * (currentVelocity / maxVelocity));
+            power = (enginePower * Time.deltaTime * powerMultiplier * (1-currentVelocity / maxVelocity));
             brake = 0.0f;
         }
         else
         {
-            float desiredVelocity =  Mathf.Abs(currentVelocity / standardVelocity);
-            brake = desiredVelocity * powerMultiplier;
-            power = 0;
+            power = (enginePower * Time.deltaTime * powerMultiplier * (1 - currentVelocity / standardVelocity));
+            brake = 0.0f;
         }
     }
 
     public void Steering(float rangeFromTarget, float currentVelocity, float curlookAngle)
     {
-        //curlookAngle = Mathf.Clamp(curlookAngle, -100, 100);
+        curlookAngle = Mathf.Clamp(curlookAngle, -100, 100);
         
         if ((curlookAngle >= -120 && curlookAngle <= 120) && !reversing)
         {
@@ -149,7 +148,7 @@ public class VehicleMover : Mover
             myEngine.standardVelocity = grid.rb.velocity.magnitude;
 
             //Checks if current target is on the navmesh else replace it with one that is
-            rangeFromTarget = Vector3.Distance(target.position, transform.position) + myEngine.maxTargetRange;
+            rangeFromTarget = Vector3.Distance(target.position, transform.position);
             currentVelocity= rb.velocity.magnitude;
             //Vector3 desiredDirection = myAgent.desiredVelocity;
             Vector3 desiredDirection =  myAgent.steeringTarget - transform.position;
@@ -193,16 +192,20 @@ public class VehicleMover : Mover
         }
     }
 
-   
+
+    public void LateUpdate()
+    {
+        myAgent.transform.position = transform.position;
+    }
 
     WheelCollider GetCollider(int i)
     {
         Vector3 wheelPos;
         Quaternion wheelOrientation;
-        wheelColliders[i].GetWorldPose(out wheelPos, out wheelOrientation);
-        wheelOrientation.eulerAngles += new Vector3(0,0,90);//= new Vector3(wheelOrientation.eulerAngles.x, wheelOrientation.eulerAngles.y, wheelOrientation.eulerAngles.z + 90);
-        wheelPrefabs[i].position = wheelPos;
-        wheelPrefabs[i].rotation = wheelOrientation;
+        //wheelColliders[i].GetWorldPose(out wheelPos, out wheelOrientation);
+        //wheelOrientation.eulerAngles += new Vector3(0,0,90);
+       // wheelPrefabs[i].position = wheelPos;
+        //wheelPrefabs[i].rotation = wheelOrientation;
         return wheelColliders[i];
     }
 
@@ -213,7 +216,7 @@ public class VehicleMover : Mover
         {
             if (Input.GetMouseButton(1))
             {
-                targetTransform = grid.GetClosestPosition(CameraFollow.GetMouseScreenToRay() + transform.forward * (-myEngine.maxTargetRange + myEngine.minSpeedUpRange));
+                targetTransform = grid.GetClosestPosition(CameraFollow.GetMouseScreenToRay() + grid.transform.forward * (-myEngine.minSpeedUpRange));
                 if (targetTransform != null)
                 {
                     target = targetTransform;
