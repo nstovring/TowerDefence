@@ -22,19 +22,25 @@ public class Grid : MonoBehaviour
 
     private Transform[,] GridMatrix;
 
+    public Party myParty;
     public Transform target;
     public float cellSize = 1;
 
     public string targetTag;
-
+    [HideInInspector]
+    public Rigidbody rb;
 
     public void SetDestination(Transform destTransform)
     {
         target = destTransform;
     }
 
+    private VehicleMover leaderMover;
+
 	void Start()
 	{
+	    rb = GetComponent<Rigidbody>();
+	    leaderMover = myParty.partyLeader.GetComponent<VehicleMover>();
         if(!target)
         target = GameObject.FindGameObjectWithTag(targetTag).transform;
         GridMatrix = new Transform[_rows,_columns];
@@ -54,15 +60,16 @@ public class Grid : MonoBehaviour
 
     public float speed;
     private int destinationIncrement = 0;
-    public void Update()
+    public void FixedUpdate()
     {
         float step = speed * Time.deltaTime;
+        //float desiredSpeed = step + leaderMover.currentVelocity/rb.velocity.magnitude;
         //transform.LookAt(target);
         Vector3 newVector3 = new Vector3(target.position.x,transform.position.y, target.position.z);
         if (Vector3.Distance(transform.position, newVector3) > 5)
         {
             Vector3 newDirection = newVector3 - transform.position; 
-            transform.position += newDirection.normalized * step;
+            rb.MovePosition(transform.position + newDirection.normalized * step);
         }
         else if(destinations[0] != null)
         {
@@ -72,7 +79,6 @@ public class Grid : MonoBehaviour
         }
     }
 
-    public bool gridGenerated;
     public float navmeshRange = 0.3f;
     public Transform GetNearestCellOnNavmesh(Transform currentTransformTarget)
     {

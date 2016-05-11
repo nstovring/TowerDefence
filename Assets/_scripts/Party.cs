@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class Party : MonoBehaviour
 {
     public List<Stats> partyMembers;
+    public Stats partyLeader;
     public Grid grid;
 
     public Transform partyDestination;
