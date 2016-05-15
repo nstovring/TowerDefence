@@ -5,12 +5,9 @@ public class ExplosiveProjectile : Projectile
 {
     public float explosionRange = 5;
 
-    private float startDistance;
     // Use this for initialization
     void Start ()
     {
-        if(target)
-        startDistance = Vector3.Distance(transform.position, target.transform.position);
     }
 
 	// Update is called once per frame

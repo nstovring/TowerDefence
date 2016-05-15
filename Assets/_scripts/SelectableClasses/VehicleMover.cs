@@ -22,56 +22,75 @@ public class Engine
     public bool reversing;
 
     private int powerMultiplier = 100;
-
+    public float rangeFromTarget;
     public void AddPower(float rangeFromTarget, float currentVelocity)
     {
-        if (rangeFromTarget-5 < minSpeedUpRange+5 && currentVelocity < standardVelocity)
+        int cruisingRange = 2;
+        power = 0;
+        this.rangeFromTarget = rangeFromTarget;
+        if (rangeFromTarget- cruisingRange < minSpeedUpRange+ cruisingRange && currentVelocity > standardVelocity)
         {
+           // Debug.Log("Slowing Down");
             float desiredVelocity = Mathf.Abs(currentVelocity / standardVelocity);
-            brake = desiredVelocity * powerMultiplier * 250f;
+            brake = desiredVelocity * powerMultiplier;
             power = 0;
         }
-        else if (rangeFromTarget - 5 > minSpeedUpRange + 5 && currentVelocity < maxVelocity)
+        else if (rangeFromTarget + cruisingRange > minSpeedUpRange - cruisingRange && currentVelocity < maxVelocity)
         {
-            power = (enginePower * Time.deltaTime * powerMultiplier * (1-currentVelocity / maxVelocity));
+            //Debug.Log("Speeding Up");
+            power += (enginePower * Time.deltaTime * powerMultiplier * (1-currentVelocity / maxVelocity));
             brake = 0.0f;
         }
         else
         {
-            power = (enginePower * Time.deltaTime * powerMultiplier * (1 - currentVelocity / standardVelocity));
+            if (rangeFromTarget - cruisingRange < minSpeedUpRange + cruisingRange)
+            {
+                //Debug.Log("Slowing Down");
+                float desiredVelocity = Mathf.Abs(currentVelocity / standardVelocity);
+                brake = desiredVelocity * powerMultiplier;
+                power = 0;
+                return;
+            }
+            //Debug.Log("Cruising speed");
+            power += (enginePower * Time.deltaTime * powerMultiplier * (1 - currentVelocity / standardVelocity));
             brake = 0.0f;
         }
     }
 
+    private float reverseTimer = 1;
+    private float curReverseTime = 0;
     public void Steering(float rangeFromTarget, float currentVelocity, float curlookAngle)
     {
-        curlookAngle = Mathf.Clamp(curlookAngle, -100, 100);
-        
         if ((curlookAngle >= -120 && curlookAngle <= 120) && !reversing)
         {
             steer =  (curlookAngle / 180f) * maxSteer;
+            curReverseTime = 0;
+            return;
         }
-        else
+        if (curReverseTime > reverseTimer)
         {
-            reversing = true;
+            curReverseTime += Time.deltaTime;
         }
+        reversing = true;
         if (reversing)
         {
-            if (rangeFromTarget < minSpeedUpRange && currentVelocity < standardVelocity)
+            if (currentVelocity < standardVelocity)
             {
                 power = -(enginePower * Time.deltaTime * powerMultiplier * (1 - currentVelocity / maxVelocity));
                 brake = 0.0f;
             }
             steer = ((-curlookAngle / 180f) * maxSteer);
 
-            if (curlookAngle <= 120 && curlookAngle >= -120)
+            if (curlookAngle <= 20 && curlookAngle >= -20 )
             {
-                //power = (enginePower * Time.deltaTime * powerMultiplier * (1 - currentVelocity / maxVelocity));
-                if (currentVelocity > 0)
+                if (currentVelocity > 0.1)
                 {
-                    brake = 1000f;
+                    power = 0;
+                    brake = 1f * enginePower;
+                    //Debug.Log("Braking");
                     return;
                 }
+                curReverseTime = 0;
                 reversing = false;
             }
         }
@@ -84,45 +103,38 @@ public class VehicleMover : Mover
     public Engine myEngine;
     public Transform targetTransform;
     public Grid grid;
-    // Use this for initialization
-
     private float rangeFromTarget;
     public float currentVelocity;
     private int powerMultiplier = 100;
 
-
     public Transform[] wheels = new Transform[4];
-    public Transform[] wheelPrefabs = new Transform[4];
 
-    private WheelCollider[] wheelColliders = new WheelCollider[4];
+    public WheelCollider[] wheelColliders = new WheelCollider[4];
 
+    private float curlookAngle;
     void Start()
     {
         InitializeMover();
         rb = GetComponent<Rigidbody>();
         grid = myStats.myParty.grid;
-        targetTransform = grid.GetClosestPosition(targetTransform);
+        targetTransform = grid.GetClosestPosition(targetTransform.position + grid.transform.forward * (myEngine.minSpeedUpRange));
         target = targetTransform;
 
         for (int i = 0; i < wheels.Length; i++)
         {
             wheelColliders[i] = wheels[i].gameObject.GetComponent<WheelCollider>();
-            wheelPrefabs[i] = wheels[i].GetChild(0);
         }
         StartCoroutine(GoToTarget());
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         GetTarget();
     }
 
+    private Vector3 myDesiredVelocity = Vector3.zero;
     void Update()
     {
-        Debug.DrawRay(transform.position, myAgent.desiredVelocity * 5, Color.red);
-
-        Debug.DrawLine(transform.position, target.position, Color.blue);
     }
 
     public bool CheckIfAtDestination()
@@ -140,75 +152,128 @@ public class VehicleMover : Mover
     {
         while (true)
         {
-            if (myAgent.isOnNavMesh)
-            {
-                myAgent.SetDestination(grid.GetNearestCellOnNavmesh(target).position);
-            }
-            myAgent.transform.position = transform.position;
+            //myAgent.SetDestination(grid.GetNearestCellOnNavmesh(target).position);
+            myAgent.SetDestination(target.position);
+
+            if(!myStats.isLeader)
             myEngine.standardVelocity = grid.rb.velocity.magnitude;
 
-            //Checks if current target is on the navmesh else replace it with one that is
-            rangeFromTarget = Vector3.Distance(target.position, transform.position);
-            currentVelocity= rb.velocity.magnitude;
-            //Vector3 desiredDirection = myAgent.desiredVelocity;
-            Vector3 desiredDirection =  myAgent.steeringTarget - transform.position;
-
-            float curlookAngle = Vector3.Angle(desiredDirection, transform.forward);
-            // assume the sign of the cross product's Y component:
-            curlookAngle *= Mathf.Sign(Vector3.Cross(desiredDirection, transform.forward).y)* -1;
-
-            myEngine.Steering(rangeFromTarget,currentVelocity,curlookAngle);
-
-            yield return new WaitForFixedUpdate();
-            if (!myEngine.reversing)
+            //SwitchToAgentControl();
+            if (!IsVehicleWithinCameraRange())
             {
-                myEngine.AddPower(rangeFromTarget, currentVelocity);
+                SwitchToAgentControl();
             }
-            yield return new WaitForFixedUpdate();
-
-            GetCollider(0).steerAngle = myEngine.steer;
-            GetCollider(1).steerAngle = myEngine.steer;
-
-            if  (myEngine.brake > 0.0)
+            else if (myAgent.pathStatus == NavMeshPathStatus.PathComplete && IsVehicleWithinCameraRange())
             {
-                GetCollider(0).brakeTorque = myEngine.brake;
-                GetCollider(1).brakeTorque = myEngine.brake;
-                GetCollider(2).brakeTorque = myEngine.brake;
-                GetCollider(3).brakeTorque = myEngine.brake;
-                GetCollider(2).motorTorque = 0.0f;
-                GetCollider(3).motorTorque = 0.0f;
+                myAgent.transform.parent = transform;
+                myAgent.acceleration = 0;
+                myAgent.transform.position = transform.position;
+                yield return StartCoroutine(VelocityControl());
+                ApplyForceToWheels();
             }
-            else {
-                GetCollider(0).brakeTorque = 0;
-                GetCollider(1).brakeTorque = 0;
-                GetCollider(2).brakeTorque = 0;
-                GetCollider(3).brakeTorque = 0;
-                GetCollider(2).motorTorque = myEngine.power;
-                GetCollider(3).motorTorque = myEngine.power;
-
-            }
-
             yield return new WaitForFixedUpdate();
         }
     }
 
 
+    bool IsVehicleWithinCameraRange()
+    {
+        Vector3 targetScreenPoint = Camera.main.WorldToScreenPoint(transform.position);
+        Vector3 middleOfTheSCreen = new Vector3(Camera.main.pixelWidth / 2f, Camera.main.pixelHeight / 2f);
+
+        if (Vector3.Distance(middleOfTheSCreen, targetScreenPoint) > Camera.main.pixelWidth*4)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    void ApplyForceToWheels()
+    {
+        GetCollider(0).steerAngle = myEngine.steer;
+        GetCollider(1).steerAngle = myEngine.steer;
+        if (myEngine.brake > 0.0)
+        {
+            GetCollider(0).brakeTorque = myEngine.brake;
+            GetCollider(1).brakeTorque = myEngine.brake;
+            GetCollider(2).brakeTorque = myEngine.brake;
+            GetCollider(3).brakeTorque = myEngine.brake;
+            GetCollider(2).motorTorque = 0.0f;
+            GetCollider(3).motorTorque = 0.0f;
+        }
+        else
+        {
+            GetCollider(0).brakeTorque = 0;
+            GetCollider(1).brakeTorque = 0;
+            GetCollider(2).brakeTorque = 0;
+            GetCollider(3).brakeTorque = 0;
+            GetCollider(2).motorTorque = (int)myEngine.power;
+            GetCollider(3).motorTorque = (int)myEngine.power;
+        }
+    }
+
+    IEnumerator VelocityControl()
+    {
+        myDesiredVelocity = myAgent.desiredVelocity;
+        rangeFromTarget = Vector3.Distance(target.position, transform.position);
+        currentVelocity = rb.velocity.magnitude;
+        Vector3 desiredDirection = myDesiredVelocity;
+
+        float stepValue = 180f / curlookAngle;
+        curlookAngle = Mathf.Abs(curlookAngle) * stepValue;
+        curlookAngle = Vector3.Angle(desiredDirection, transform.forward);
+        // assume the sign of the cross product's Y component:
+        curlookAngle *= Mathf.Sign(Vector3.Cross(desiredDirection, transform.forward).y) * -1;
+
+        myEngine.Steering(rangeFromTarget, currentVelocity, curlookAngle);
+        yield return new WaitForFixedUpdate();
+        if (!myEngine.reversing)
+        {
+            myEngine.AddPower(rangeFromTarget, currentVelocity);
+        }
+        yield return new WaitForFixedUpdate();
+    }
+
+    void SwitchToAgentControl()
+    {
+        myAgent.transform.parent = null;
+        myAgent.speed = myEngine.maxVelocity;
+        myAgent.acceleration = 5;
+        Vector3 offsetAgentVector = myAgent.transform.position;
+        offsetAgentVector.y = transform.position.y;
+        rb.MovePosition(offsetAgentVector);
+        rb.MoveRotation(myAgent.transform.rotation);
+    }
+
     public void LateUpdate()
     {
-        myAgent.transform.position = transform.position;
+        if (IsVehicleWithinCameraRange())
+        {
+            myAgent.transform.position = transform.position;
+        }
     }
 
+
+    public void ApplyLocalPositionToVisuals(WheelCollider collider)
+    {
+        if (collider.transform.childCount == 0)
+        {
+            return;
+        }
+        Transform visualWheel = collider.transform.GetChild(0);
+        Vector3 position;
+        Quaternion rotation;
+        collider.GetWorldPose(out position, out rotation);
+        // visualWheel is parented to wheel collider, so we need to do a
+        //little space transformation here
+        rotation.eulerAngles += new Vector3(0,0,90);
+        visualWheel.position = position;
+        visualWheel.rotation = rotation;
+    }
     WheelCollider GetCollider(int i)
     {
-        Vector3 wheelPos;
-        Quaternion wheelOrientation;
-        //wheelColliders[i].GetWorldPose(out wheelPos, out wheelOrientation);
-        //wheelOrientation.eulerAngles += new Vector3(0,0,90);
-       // wheelPrefabs[i].position = wheelPos;
-        //wheelPrefabs[i].rotation = wheelOrientation;
         return wheelColliders[i];
     }
-
 
     public void GetTarget()
     {
@@ -216,7 +281,9 @@ public class VehicleMover : Mover
         {
             if (Input.GetMouseButton(1))
             {
-                targetTransform = grid.GetClosestPosition(CameraFollow.GetMouseScreenToRay() + grid.transform.forward * (-myEngine.minSpeedUpRange));
+                //targetTransform = grid.GetClosestPosition(CameraFollow.GetMouseScreenToRay() + grid.transform.forward * (myEngine.minSpeedUpRange));
+                targetTransform = grid.GetClosestPosition(CameraFollow.GetMouseScreenToRay() ,(int)(myEngine.minSpeedUpRange));
+
                 if (targetTransform != null)
                 {
                     target = targetTransform;

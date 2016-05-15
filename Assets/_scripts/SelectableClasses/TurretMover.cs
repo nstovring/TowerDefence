@@ -9,12 +9,10 @@ public class TurretMover : Mover
     public Transform targetTransform;
     // Use this for initialization
 
-    private Vector3 positionalOffset;
 
 	void Start () {
         InitializeMover();
 	    myMeshObstacle = GetComponent<NavMeshObstacle>();
-	    positionalOffset = targetTransform.position - transform.position;
 	    target = targetTransform;
 	}
 	

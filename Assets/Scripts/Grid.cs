@@ -62,10 +62,13 @@ public class Grid : MonoBehaviour
     private int destinationIncrement = 0;
     public void FixedUpdate()
     {
+        //speed = (leaderMover.currentVelocity/speed)*speed;
         float step = speed * Time.deltaTime;
-        //float desiredSpeed = step + leaderMover.currentVelocity/rb.velocity.magnitude;
-        //transform.LookAt(target);
+
         Vector3 newVector3 = new Vector3(target.position.x,transform.position.y, target.position.z);
+
+        rb.MoveRotation(Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(target.position - transform.position), 1 * Time.deltaTime));
+
         if (Vector3.Distance(transform.position, newVector3) > 5)
         {
             Vector3 newDirection = newVector3 - transform.position; 
@@ -75,7 +78,7 @@ public class Grid : MonoBehaviour
         {
             SetDestination(destinations[destinationIncrement]);
             destinationIncrement++;
-            destinationIncrement = destinationIncrement%4;
+            destinationIncrement = destinationIncrement%destinations.Length;
         }
     }
 
@@ -85,9 +88,27 @@ public class Grid : MonoBehaviour
         NavMeshHit hit;
         if (NavMesh.SamplePosition(currentTransformTarget.position, out hit, navmeshRange, NavMesh.AllAreas))
         {
+            StartCoroutine(flashCell(currentTransformTarget));
             return currentTransformTarget;
         }
         return GetClosestPosition(currentTransformTarget);
+    }
+
+    IEnumerator flashCell(Transform cell)
+    {
+        float timeFlash = 3f;
+        while (timeFlash > 0)
+        {
+            float colorValue = Mathf.Sin(Time.time * 5);//Mathf.PingPong(Time.time, 255);
+            Color lerpColor = new Color(0, 0, 0, colorValue);
+
+            cell.GetComponent<MeshRenderer>().material.color = lerpColor;
+            //lerpColor = Color.
+            timeFlash -= Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+        cell.GetComponent<MeshRenderer>().material.color = new Color(0,0,0,0);
+        yield return null;
     }
 
     public Transform GetClosestPosition(Transform targetedPoint)
@@ -98,10 +119,12 @@ public class Grid : MonoBehaviour
             {
                 if (Vector3.Distance(GridMatrix[i, j].position, targetedPoint.position) < cellSize)
                 {
-                        return GridMatrix[i, j + 5];
+                    StartCoroutine(flashCell(GridMatrix[i, j]));
+                    return GridMatrix[i, j];
                 }
             }
         }
+        StartCoroutine(flashCell(targetedPoint));
         return targetedPoint;
     }
 
@@ -113,11 +136,35 @@ public class Grid : MonoBehaviour
             {
                 if (Vector3.Distance(GridMatrix[i, j].position, targetedPoint) < cellSize)
                 {
-                    NavMeshHit hit;
-                    if (NavMesh.SamplePosition(GridMatrix[i, j].position, out hit, navmeshRange, NavMesh.AllAreas))
-                    {
-                        return GridMatrix[i, j ];
-                    }
+                    //NavMeshHit hit;
+                    //if (NavMesh.SamplePosition(GridMatrix[i, j].position, out hit, navmeshRange, NavMesh.AllAreas))
+                    //{        StartCoroutine(flashCell(targetedPoint));
+
+                    return GridMatrix[i , j ];
+                    //}
+                }
+            }
+        }
+        return null;
+    }
+
+    public Transform GetClosestPosition(Vector3 targetedPoint, int offset)
+    {
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _columns; j++)
+            {
+                if (Vector3.Distance(GridMatrix[i, j].position, targetedPoint) < cellSize)
+                {
+                    //NavMeshHit hit;
+                    //if (NavMesh.SamplePosition(GridMatrix[i, j].position, out hit, navmeshRange, NavMesh.AllAreas))
+                    //{
+                    StartCoroutine(flashCell(GridMatrix[i, j]));
+                    int offsetCell = Mathf.Clamp(j + offset/2, 0, GridMatrix.GetLength(1));
+                    StartCoroutine(flashCell(GridMatrix[i, offsetCell]));
+
+                    return GridMatrix[i, offsetCell];
+                    //}
                 }
             }
         }

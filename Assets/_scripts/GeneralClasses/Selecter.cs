@@ -15,13 +15,23 @@ public class Selecter : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
+    void Update ()
+    {
+        Vector3 cameraLookAtTarget = Vector3.zero;
         if (selectedObjectList.Count > 0)
         {
-            foreach (Stats stats in selectedObjectList)
+            Vector3[] positionsOfSelectedObjects = new Vector3[selectedObjectList.Count];
+            for (int i = 0; i < selectedObjectList.Count; i++)
             {
-                stats.isSelected = true;
+                selectedObjectList[i].isSelected = true;
+                positionsOfSelectedObjects[i] = selectedObjectList[i].transform.position;
+                cameraLookAtTarget += selectedObjectList[i].transform.position;
             }
+            cameraLookAtTarget /= selectedObjectList.Count;
+        }
+        if (cameraLookAtTarget != Vector3.zero)
+        {
+            CameraFollow.instance.lookTransform.position = cameraLookAtTarget;
         }
         if (Input.GetMouseButton(0))
         {

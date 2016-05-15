@@ -33,6 +33,7 @@ public class CameraFollow : MonoBehaviour
     }
     void Start()
     {
+        instance = this;
         mainCamera = Camera.main;
         // Calculate the initial offset.
         offset = transform.position - target.position;
@@ -41,14 +42,21 @@ public class CameraFollow : MonoBehaviour
         originalRotation = transform.rotation;
         rotation = originalRotation;
         myCurrentViewType = ViewType.PlayerView;
+        //target = leaderMover.transform;
+
     }
 
+    public static CameraFollow instance;
     private Vector3 targetCamPos;
     public float zoomSmoothing = 1;
     float scrollDelta;
     private float newSize;
 
     public Transform lookTransform;
+    public int followRange = 10;
+
+    float lerpTime = 1f;
+    float currentLerpTime;
 
     void FixedUpdate()
     {
@@ -56,11 +64,28 @@ public class CameraFollow : MonoBehaviour
         //{
         //    GetMouseScreenToRay();
         //}
+
+
         // Create a postion the camera is aiming for based on the offset from the target.
         if (myCurrentViewType == ViewType.PlayerView)
         {
+            //currentLerpTime += Time.deltaTime;
+            //if (currentLerpTime > lerpTime)
+            //{
+            //    currentLerpTime = lerpTime;
+            //}
+
+            ////lerp!
+            //float perc = currentLerpTime / lerpTime;
             //Vector3 newPos = new Vector3(transform.forward.);
-            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(lookTransform.position - transform.position), smoothing * Time.deltaTime);
+            Vector3 targetScreenPoint = Camera.main.WorldToScreenPoint(lookTransform.position);
+            Vector3 middleOfTheSCreen = new Vector3(Camera.main.pixelWidth/2f, Camera.main.pixelHeight / 2f);
+
+            if (Vector3.Distance(targetScreenPoint, middleOfTheSCreen) > followRange)
+            {
+                transform.rotation = Quaternion.Slerp(transform.rotation,
+                    Quaternion.LookRotation(lookTransform.position - transform.position), smoothing * Time.deltaTime);
+            }
             targetCamPos = target.position + offset;
         }
         if (myCurrentViewType == ViewType.TacticalView)
