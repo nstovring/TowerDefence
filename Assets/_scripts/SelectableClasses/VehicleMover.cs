@@ -117,8 +117,9 @@ public class VehicleMover : Mover
         InitializeMover();
         rb = GetComponent<Rigidbody>();
         grid = myStats.myParty.grid;
-        targetTransform = grid.GetClosestPosition(targetTransform.position + grid.transform.forward * (myEngine.minSpeedUpRange));
-        target = targetTransform;
+        //targetTransform = grid.GetClosestPosition(targetTransform.position + grid.transform.forward * (myEngine.minSpeedUpRange));
+        //target = targetTransform;
+        myAgent.SetDestination(target.position);
 
         for (int i = 0; i < wheels.Length; i++)
         {
@@ -153,17 +154,17 @@ public class VehicleMover : Mover
         while (true)
         {
             //myAgent.SetDestination(grid.GetNearestCellOnNavmesh(target).position);
-            myAgent.SetDestination(target.position);
+            //myAgent.SetDestination(target.position);
 
             if(!myStats.isLeader)
             myEngine.standardVelocity = grid.rb.velocity.magnitude;
 
             //SwitchToAgentControl();
-            if (!IsVehicleWithinCameraRange())
-            {
-                SwitchToAgentControl();
-            }
-            else if (myAgent.pathStatus == NavMeshPathStatus.PathComplete && IsVehicleWithinCameraRange())
+            //if (!IsVehicleWithinCameraRange())
+            //{
+            //    SwitchToAgentControl();
+            //}else 
+            if (myAgent.pathStatus == NavMeshPathStatus.PathComplete) //&& IsVehicleWithinCameraRange())
             {
                 myAgent.transform.parent = transform;
                 myAgent.acceleration = 0;
@@ -272,6 +273,7 @@ public class VehicleMover : Mover
     }
     WheelCollider GetCollider(int i)
     {
+        ApplyLocalPositionToVisuals(wheelColliders[i]);
         return wheelColliders[i];
     }
 
