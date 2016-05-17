@@ -86,7 +86,8 @@ public class CameraFollow : MonoBehaviour
                 transform.rotation = Quaternion.Slerp(transform.rotation,
                     Quaternion.LookRotation(lookTransform.position - transform.position), smoothing * Time.deltaTime);
             }
-            targetCamPos = target.position + offset;
+            targetCamPos = lookTransform.position + offset;
+            offset.x += Input.GetAxis("Horizontal");
         }
         if (myCurrentViewType == ViewType.TacticalView)
         {

@@ -8,6 +8,7 @@ public class TurretStats : Stats
     //public TurretShooter myShooter;
     // Use this for initialization
     void Start () {
+        myMover = GetComponent<Mover>();
 	
 	}
 	

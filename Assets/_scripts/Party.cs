@@ -26,6 +26,18 @@ public class Party : MonoBehaviour
 	
 	// Update is called once per frame
 	void Update () {
-	
-	}
+       
+    }
+
+    void LateUpdate()
+    {
+        //foreach (var partyMember in partyMembers)
+        //{
+        //    if (!partyMember.isLeader)
+        //    {
+        //        var engine = partyMember.myMover as VehicleMover;
+        //        engine.myEngine.standardVelocity = partyLeader.myMover.currentVelocity;
+        //    }
+        //}
+    }
 }

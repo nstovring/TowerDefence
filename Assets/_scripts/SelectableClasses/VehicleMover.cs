@@ -11,10 +11,14 @@ public class Engine
     public float standardVelocity = 5;
     public float maxSteer = 25.0f;
 
-
+    [HideInInspector]
     public float power = 0.0f;
+    [HideInInspector]
     public float brake = 0.0f;
+    [HideInInspector]
     public float steer = 0.0f;
+
+    public float KPH;
 
     [Range(0, 50)]
     public float minSpeedUpRange = 5;
@@ -22,9 +26,14 @@ public class Engine
     public bool reversing;
 
     private int powerMultiplier = 100;
-    public float rangeFromTarget;
+    private float rangeFromTarget;
+
+    private float reverseTimer = 1;
+    private float curReverseTime = 0;
+
     public void AddPower(float rangeFromTarget, float currentVelocity)
     {
+        KPH = (currentVelocity / 60) * 1000;
         int cruisingRange = 2;
         power = 0;
         this.rangeFromTarget = rangeFromTarget;
@@ -57,8 +66,7 @@ public class Engine
         }
     }
 
-    private float reverseTimer = 1;
-    private float curReverseTime = 0;
+   
     public void Steering(float rangeFromTarget, float currentVelocity, float curlookAngle)
     {
         if ((curlookAngle >= -120 && curlookAngle <= 120) && !reversing)
@@ -67,7 +75,7 @@ public class Engine
             curReverseTime = 0;
             return;
         }
-        if (curReverseTime > reverseTimer)
+        if (curReverseTime < reverseTimer)
         {
             curReverseTime += Time.deltaTime;
         }
@@ -104,7 +112,6 @@ public class VehicleMover : Mover
     public Transform targetTransform;
     public Grid grid;
     private float rangeFromTarget;
-    public float currentVelocity;
     private int powerMultiplier = 100;
 
     public Transform[] wheels = new Transform[4];
@@ -112,6 +119,9 @@ public class VehicleMover : Mover
     public WheelCollider[] wheelColliders = new WheelCollider[4];
 
     private float curlookAngle;
+
+    private Stats myLeader;
+
     void Start()
     {
         InitializeMover();
@@ -125,6 +135,9 @@ public class VehicleMover : Mover
         {
             wheelColliders[i] = wheels[i].gameObject.GetComponent<WheelCollider>();
         }
+
+        myLeader = myStats.myParty.partyLeader;
+
         StartCoroutine(GoToTarget());
     }
 
@@ -153,18 +166,7 @@ public class VehicleMover : Mover
     {
         while (true)
         {
-            //myAgent.SetDestination(grid.GetNearestCellOnNavmesh(target).position);
-            //myAgent.SetDestination(target.position);
-
-            if(!myStats.isLeader)
-            myEngine.standardVelocity = grid.rb.velocity.magnitude;
-
-            //SwitchToAgentControl();
-            //if (!IsVehicleWithinCameraRange())
-            //{
-            //    SwitchToAgentControl();
-            //}else 
-            if (myAgent.pathStatus == NavMeshPathStatus.PathComplete) //&& IsVehicleWithinCameraRange())
+            if (myAgent.pathStatus == NavMeshPathStatus.PathComplete) 
             {
                 myAgent.transform.parent = transform;
                 myAgent.acceleration = 0;
@@ -216,7 +218,13 @@ public class VehicleMover : Mover
     IEnumerator VelocityControl()
     {
         myDesiredVelocity = myAgent.desiredVelocity;
-        rangeFromTarget = Vector3.Distance(target.position, transform.position);
+        if (!myStats.isLeader)
+        {
+            rangeFromTarget = Vector3.Distance(myLeader.transform.position, transform.position);
+        }else
+        {
+            rangeFromTarget = Vector3.Distance(target.transform.position, transform.position);
+        }
         currentVelocity = rb.velocity.magnitude;
         Vector3 desiredDirection = myDesiredVelocity;
 

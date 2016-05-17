@@ -6,6 +6,7 @@ public class Mover : MonoBehaviour
     public Stats myStats;
     protected NavMeshAgent myAgent;
     public Transform target;
+    public float currentVelocity;
 
     public string targetTag;
 
