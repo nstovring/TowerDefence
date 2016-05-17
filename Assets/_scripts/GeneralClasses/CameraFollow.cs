@@ -25,7 +25,17 @@ public class CameraFollow : MonoBehaviour
 
     public static ViewType myCurrentViewType;
     private Camera mainCamera;
+    public static CameraFollow instance;
+    private Vector3 targetCamPos;
+    public float zoomSmoothing = 1;
+    float scrollDelta;
+    private float newSize;
 
+    public Transform lookTransform;
+    public int followRange = 10;
+
+    float lerpTime = 1f;
+    float currentLerpTime;
     void Awake()
     {
         // Create a layer mask for the floor layer.
@@ -46,38 +56,13 @@ public class CameraFollow : MonoBehaviour
 
     }
 
-    public static CameraFollow instance;
-    private Vector3 targetCamPos;
-    public float zoomSmoothing = 1;
-    float scrollDelta;
-    private float newSize;
-
-    public Transform lookTransform;
-    public int followRange = 10;
-
-    float lerpTime = 1f;
-    float currentLerpTime;
+   
 
     void FixedUpdate()
     {
-        //if (Input.GetMouseButton(0))
-        //{
-        //    GetMouseScreenToRay();
-        //}
-
-
         // Create a postion the camera is aiming for based on the offset from the target.
         if (myCurrentViewType == ViewType.PlayerView)
         {
-            //currentLerpTime += Time.deltaTime;
-            //if (currentLerpTime > lerpTime)
-            //{
-            //    currentLerpTime = lerpTime;
-            //}
-
-            ////lerp!
-            //float perc = currentLerpTime / lerpTime;
-            //Vector3 newPos = new Vector3(transform.forward.);
             Vector3 targetScreenPoint = Camera.main.WorldToScreenPoint(lookTransform.position);
             Vector3 middleOfTheSCreen = new Vector3(Camera.main.pixelWidth/2f, Camera.main.pixelHeight / 2f);
 
@@ -86,8 +71,8 @@ public class CameraFollow : MonoBehaviour
                 transform.rotation = Quaternion.Slerp(transform.rotation,
                     Quaternion.LookRotation(lookTransform.position - transform.position), smoothing * Time.deltaTime);
             }
+
             targetCamPos = lookTransform.position + offset;
-            offset.x += Input.GetAxis("Horizontal");
         }
         if (myCurrentViewType == ViewType.TacticalView)
         {
@@ -99,12 +84,7 @@ public class CameraFollow : MonoBehaviour
             mainCamera.orthographicSize = Mathf.Lerp(mainCamera.orthographicSize, newSize, zoomSmoothing * Time.deltaTime);
         }
 
-        // Smoothly interpolate between the camera's current position and it's target position.
-        //if (Vector3.Distance(transform.position, targetCamPos) > 10 )
-        //{
-            transform.position = Vector3.Lerp(transform.position, targetCamPos, smoothing*Time.deltaTime);
-            //transform.rotation = Quaternion.Lerp(transform.rotation, rotation, smoothing*Time.deltaTime);
-        //}
+         transform.position = Vector3.Lerp(transform.position, targetCamPos, smoothing*Time.deltaTime);
 
         if (Input.GetKeyDown(KeyCode.Space) && myCurrentViewType != ViewType.TacticalView)
         {
