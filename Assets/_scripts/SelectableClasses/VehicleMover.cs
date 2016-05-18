@@ -107,28 +107,36 @@ public class Engine
 
 public class VehicleMover : Mover
 {
-    private NavMeshObstacle myMeshObstacle;
     public Engine myEngine;
     public Transform targetTransform;
     public Grid grid;
-    private float rangeFromTarget;
-    private int powerMultiplier = 100;
+    protected float rangeFromTarget;
+    protected int powerMultiplier = 100;
 
     public Transform[] wheels = new Transform[4];
 
-    public WheelCollider[] wheelColliders = new WheelCollider[4];
+    protected WheelCollider[] wheelColliders = new WheelCollider[4];
 
-    private float curlookAngle;
+    protected float curlookAngle;
 
-    private Stats myLeader;
+    protected Stats myLeader;
 
     void Start()
     {
         InitializeMover();
+    }
+
+    public override void InitializeMover()
+    {
+        base.InitializeMover();
         rb = GetComponent<Rigidbody>();
         grid = myStats.myParty.grid;
-        //targetTransform = grid.GetClosestPosition(targetTransform.position + grid.transform.forward * (myEngine.minSpeedUpRange));
-        //target = targetTransform;
+
+        targetTransform = grid.GetClosestPosition(transform.position, (int)(myEngine.minSpeedUpRange));
+        if (targetTransform != null)
+        {
+            target = targetTransform;
+        }
         myAgent.SetDestination(target.position);
 
         for (int i = 0; i < wheels.Length; i++)
@@ -146,11 +154,8 @@ public class VehicleMover : Mover
         GetTarget();
     }
 
-    private Vector3 myDesiredVelocity = Vector3.zero;
-    void Update()
-    {
-    }
-
+    protected Vector3 myDesiredVelocity = Vector3.zero;
+ 
     public bool CheckIfAtDestination()
     {
         if (myAgent.hasPath && myAgent.remainingDistance <= 1)
@@ -179,7 +184,7 @@ public class VehicleMover : Mover
     }
 
 
-    bool IsVehicleWithinCameraRange()
+    protected bool IsVehicleWithinCameraRange()
     {
         Vector3 targetScreenPoint = Camera.main.WorldToScreenPoint(transform.position);
         Vector3 middleOfTheSCreen = new Vector3(Camera.main.pixelWidth / 2f, Camera.main.pixelHeight / 2f);
@@ -191,7 +196,7 @@ public class VehicleMover : Mover
         return true;
     }
 
-    void ApplyForceToWheels()
+    protected void ApplyForceToWheels()
     {
         GetCollider(0).steerAngle = myEngine.steer;
         GetCollider(1).steerAngle = myEngine.steer;
@@ -215,7 +220,7 @@ public class VehicleMover : Mover
         }
     }
 
-    IEnumerator VelocityControl()
+    protected IEnumerator VelocityControl()
     {
         myDesiredVelocity = myAgent.desiredVelocity;
         if (!myStats.isLeader)
@@ -243,7 +248,7 @@ public class VehicleMover : Mover
         yield return new WaitForFixedUpdate();
     }
 
-    void SwitchToAgentControl()
+    protected void SwitchToAgentControl()
     {
         myAgent.transform.parent = null;
         myAgent.speed = myEngine.maxVelocity;
@@ -279,7 +284,7 @@ public class VehicleMover : Mover
         visualWheel.position = position;
         visualWheel.rotation = rotation;
     }
-    WheelCollider GetCollider(int i)
+    protected WheelCollider GetCollider(int i)
     {
         ApplyLocalPositionToVisuals(wheelColliders[i]);
         return wheelColliders[i];
@@ -291,7 +296,6 @@ public class VehicleMover : Mover
         {
             if (Input.GetMouseButton(1))
             {
-                //targetTransform = grid.GetClosestPosition(CameraFollow.GetMouseScreenToRay() + grid.transform.forward * (myEngine.minSpeedUpRange));
                 targetTransform = grid.GetClosestPosition(CameraFollow.GetMouseScreenToRay() ,(int)(myEngine.minSpeedUpRange));
 
                 if (targetTransform != null)

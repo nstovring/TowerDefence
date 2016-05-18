@@ -20,7 +20,7 @@ public class Mover : MonoBehaviour
 	
 	}
 
-    public void InitializeMover()
+    public virtual void InitializeMover()
     {
         if (GetComponent<NavMeshAgent>())
         {

@@ -35,12 +35,12 @@ public class Grid : MonoBehaviour
         target = destTransform;
     }
 
-    private VehicleMover leaderMover;
+    //private VehicleMover leaderMover;
 
 	void Start()
 	{
 	    rb = GetComponent<Rigidbody>();
-	    leaderMover = myParty.partyLeader.GetComponent<VehicleMover>();
+	    //leaderMover = myParty.partyLeader.GetComponent<VehicleMover>();
         if(!target)
         target = GameObject.FindGameObjectWithTag(targetTag).transform;
         GridMatrix = new Transform[_rows,_columns];
@@ -67,12 +67,12 @@ public class Grid : MonoBehaviour
 
         Vector3 newVector3 = new Vector3(target.position.x,transform.position.y, target.position.z);
 
-        rb.MoveRotation(Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(target.position - transform.position), 1 * Time.deltaTime));
+        //rb.MoveRotation(Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(target.position - transform.position), 1 * Time.deltaTime));
 
         if (Vector3.Distance(transform.position, newVector3) > 5)
         {
-            Vector3 newDirection = newVector3 - transform.position; 
-            rb.MovePosition(transform.position + newDirection.normalized * step);
+            //Vector3 newDirection = newVector3 - transform.position; 
+            //rb.MovePosition(transform.position + newDirection.normalized * step);
         }
         else if(destinations[0] != null)
         {
